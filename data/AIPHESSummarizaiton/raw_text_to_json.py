@@ -7,6 +7,8 @@ import os
 
 from stanford_corenlp_pywrapper import CoreNLP
 
+from data.AIPHESSummarizaiton.raw_json_to_conll2016_json import convert_raw_json_to_conll2016_json
+
 
 def mkdir_p(path):
     try:
@@ -95,11 +97,17 @@ if __name__ == "__main__":
         if doc_id not in docs and len(curr_doc["sentences_text"]) > 0:
             docs["doc_id"] = curr_doc
 
+        # export the raw stanford corenlp
         current_file_parse_file = os.path.join(output_dir_file, "parses_raw.json")
         save_data_to_json_file(docs, current_file_parse_file)
         print("Saved file %s" % current_file_parse_file)
 
+        # convert to conll json
+        current_file_parse_conll = os.path.join(output_dir_file, "parses.json")
+        docs_converted = convert_raw_json_to_conll2016_json(docs)
+        save_data_to_json_file(docs_converted, current_file_parse_file)
 
+        print("Saved file %s" % current_file_parse_conll)
 
 
 
