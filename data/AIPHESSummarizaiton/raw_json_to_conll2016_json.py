@@ -15,9 +15,10 @@ def convert_raw_json_to_conll2016_json(raw_json):
             sent_new = {"words": words_converted}
             curr_doc["sentences"].append(sent_new)
 
-        docs_converted[doc_id_key] = doc_data
+        docs_converted[doc_id_key] = curr_doc
 
     return docs_converted
+
 
 if __name__ == "__main__":
     parse_file = sys.argv[1]

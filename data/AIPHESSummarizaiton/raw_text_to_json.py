@@ -102,10 +102,10 @@ if __name__ == "__main__":
         save_data_to_json_file(docs, current_file_parse_file)
         print("Saved file %s" % current_file_parse_file)
 
-        # convert to conll json
+        # convert to conll2016st discourse rel json
         current_file_parse_conll = os.path.join(output_dir_file, "parses.json")
         docs_converted = convert_raw_json_to_conll2016_json(docs)
-        save_data_to_json_file(docs_converted, current_file_parse_file)
+        save_data_to_json_file(docs_converted, current_file_parse_conll)
 
         print("Saved file %s" % current_file_parse_conll)
 
