@@ -32,6 +32,42 @@ def save_data_to_json_file(data, output_json_file):
     json.dump(data, data_file)
     data_file.close()
 
+def convert_raw_text_to_json_corenlp(input_dir, file_base_name):
+    docs = {}
+    doc_id = "%s:doc_%s" % (file_base_name, len(docs))
+    curr_doc = {"ID": doc_id, "sentences_text": [], "sentences": [], "line_start": 0}
+
+    file_name_full = os.path.join(input_dir, file_name)
+    line_id = -1
+    for line in codecs.open(file_name_full, 'rb'):
+        line_id += 1
+        line = line.strip()
+        print ("Line %s, doc %s" % (line_id, doc_id))
+        if line == "":
+            # Document separator
+            if doc_id not in docs and len(curr_doc["sentences_text"]) > 0:
+                docs[doc_id] = curr_doc
+
+            doc_id = "%s:doc_%s" % (file_base_name, len(docs))
+            curr_doc = {"ID": doc_id, "sentences_text": [], "sentences": [], "line_start": line_id}
+
+            continue
+
+        curr_doc["sentences_text"].append(line)
+
+        line_parse = parser.parse_doc(line)
+
+        line_parse_single_sentence = line_parse["sentences"][0]
+        if len(line_parse["sentences"]) > 1:
+            print("Warning - multiple sentences (%s) at line %s in file %s" % (
+            len(line_parse["sentences"]), line_id, file_name_full))
+        curr_doc["sentences"].append(line_parse_single_sentence)
+
+    if doc_id not in docs and len(curr_doc["sentences_text"]) > 0:
+        docs[doc_id] = curr_doc
+
+    return docs
+
 
 if __name__ == "__main__":
     input_dir = sys.argv[1]
@@ -69,38 +105,7 @@ if __name__ == "__main__":
 
             file_parse_json = {}
 
-            docs = {}
-            doc_id = "%s:doc_%s" % (file_base_name, len(docs))
-            curr_doc = {"ID": doc_id, "sentences_text": [], "sentences": [], "line_start": 0}
-
-            file_name_full = os.path.join(input_dir, file_name)
-            line_id = -1
-            for line in codecs.open(file_name_full, 'rb'):
-                line_id += 1
-                line = line.strip()
-                print ("Line %s, doc %s" % (line_id, doc_id))
-                if line == "":
-                    # Document separator
-                    if doc_id not in docs and len(curr_doc["sentences_text"]) > 0:
-                        docs[doc_id] = curr_doc
-
-                    doc_id = "%s:doc_%s" % (file_base_name, len(docs))
-                    curr_doc = {"ID": doc_id, "sentences_text": [], "sentences": [], "line_start": line_id}
-
-                    continue
-
-                curr_doc["sentences_text"].append(line)
-
-                line_parse = parser.parse_doc(line)
-
-                line_parse_single_sentence = line_parse["sentences"][0]
-                if len(line_parse["sentences"]) > 1:
-                    print("Warning - multiple sentences (%s) at line %s in file %s" % (len(line_parse["sentences"]), line_id, file_name_full))
-                curr_doc["sentences"].append(line_parse_single_sentence)
-
-
-            if doc_id not in docs and len(curr_doc["sentences_text"]) > 0:
-                docs["doc_id"] = curr_doc
+            docs = convert_raw_text_to_json_corenlp(input_dir, file_base_name)
 
             # export the raw stanford corenlp
 
@@ -116,7 +121,7 @@ if __name__ == "__main__":
 
             print("Generating relations_no_sense.json")
             # convert to conll2016st discourse rel json
-            current_file_candidates_file = os.path.join(output_dir_file, "relations_no_sense.json")
+            current_file_candidates_file = os.path.join(output_dir_file, "relations-no-senses.json")
             export_discourse_relations_candidates_to_file(current_file_parse_file, current_file_candidates_file)
 
 

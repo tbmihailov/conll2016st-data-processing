@@ -24,24 +24,29 @@ def new_discourse_relation_item():
 
     return new_item
 
+def create_explicit(doc_data, sent_id, conn_token_span, new_id):
+    doc_id = doc_data["ID"]
+    sent_text = doc_data["sentences_text"][sent_id]
+    sent_parse = doc_data["sentences"][sent_id]
 
-def create_explicit(sent_id, sent_text, sent_parse, conn_token_span, doc_id, new_id):
     new_item = new_discourse_relation_item()
     new_item["Type"] = "Explicit"
     new_item["DocID"] = doc_id
     new_item["ID"] = new_id
 
-    new_item["Arg1"]["TokenList"] = [[0, 0, sent_id,x] for x in range(0, conn_token_span[0])]
-    new_item["Arg1"]["RawText"] = sent_text[0:sent_parse["char_offsets"][conn_token_span[0] - 1][1]]
+    new_item["Arg1"]["TokenList"] = [[0, 0, doc_data["line_start"] + sent_id, sent_id,x] for x in range(0, conn_token_span[0])]
+    new_item["Arg1"]["CharacterSpanList"] = [0, sent_parse["char_offsets"][conn_token_span[0] - 1][1]]
+    new_item["Arg1"]["RawText"] = sent_text[new_item["Arg1"]["CharacterSpanList"][0]:new_item["Arg1"]["CharacterSpanList"][1]]
 
-    new_item["Connective"]["TokenList"] = [[0, 0, sent_id, x] for x in range(conn_token_span[0], conn_token_span[1])]
-    new_item["Connective"]["RawText"] = sent_text[sent_parse["char_offsets"][conn_token_span[0]][0]:sent_parse["char_offsets"][conn_token_span[1] - 1][1]]
+    new_item["Connective"]["TokenList"] = [[0, 0, doc_data["line_start"] + sent_id, sent_id, x] for x in range(conn_token_span[0], conn_token_span[1])]
+    new_item["Connective"]["CharacterSpanList"] = [sent_parse["char_offsets"][conn_token_span[0]][0], sent_parse["char_offsets"][conn_token_span[1] - 1][1]]
+    new_item["Connective"]["RawText"] = sent_text[new_item["Connective"]["CharacterSpanList"][0]:new_item["Connective"]["CharacterSpanList"][1]]
 
-    new_item["Arg2"]["TokenList"] = [[0, 0, sent_id, x] for x in range(conn_token_span[1], len(sent_parse["char_offsets"]))]
-    new_item["Arg2"]["RawText"] = sent_text[sent_parse["char_offsets"][conn_token_span[1]][1]:]
+    new_item["Arg2"]["TokenList"] = [[0, 0, doc_data["line_start"] + sent_id, sent_id, x] for x in range(conn_token_span[1], len(sent_parse["char_offsets"]))]
+    new_item["Arg2"]["CharacterSpanList"] = [sent_parse["char_offsets"][conn_token_span[1]][1], sent_parse["char_offsets"][-1][1]]
+    new_item["Arg2"]["RawText"] = sent_text[new_item["Arg2"]["CharacterSpanList"][0]:new_item["Arg2"]["CharacterSpanList"][1]]
 
     return new_item
-
 
 def create_implicit(doc_data, sent1_id, sent2_id, cand_id):
     new_item = new_discourse_relation_item()
@@ -49,14 +54,13 @@ def create_implicit(doc_data, sent1_id, sent2_id, cand_id):
     new_item["DocID"] = doc_data["ID"]
     new_item["ID"] = cand_id
 
-    new_item["Arg1"]["TokenList"] = [[0, 0, sent1_id, x] for x in range(0, len(doc_data["sentences"][sent1_id]["tokens"]))]
+    new_item["Arg1"]["TokenList"] = [[0, 0, doc_data["line_start"] + sent1_id, sent1_id, x] for x in range(0, len(doc_data["sentences"][sent1_id]["tokens"]))]
     new_item["Arg1"]["RawText"] = doc_data["sentences_text"][sent1_id]
 
-    new_item["Arg2"]["TokenList"] = [[0, 0, sent2_id, x] for x in range(0, len(doc_data["sentences"][sent2_id]["tokens"]))]
+    new_item["Arg2"]["TokenList"] = [[0, 0, doc_data["line_start"] + sent2_id, sent2_id, x] for x in range(0, len(doc_data["sentences"][sent2_id]["tokens"]))]
     new_item["Arg2"]["RawText"] = doc_data["sentences_text"][sent2_id]
 
     return new_item
-
 
 def export_discourse_relations_candidates_to_file(parse_file, candidates_file_out):
     f = codecs.open(parse_file, "rb")
@@ -71,8 +75,6 @@ def export_discourse_relations_candidates_to_file(parse_file, candidates_file_ou
             sent_parse = doc_data["sentences"][sent_id]
 
             # explicit connectives
-            curr_conn_start = -1
-            curr_conn_end = -1
             for connective in connectives_to_check:
                 if connective in sent:
                     curr_conn_start = sent.find(connective)  # sent.indexof(connective)
@@ -87,28 +89,26 @@ def export_discourse_relations_candidates_to_file(parse_file, candidates_file_ou
                         # print "skip"
                         continue
 
-                    break
+                    if curr_conn_start > 0:
+                        conn_tokens_start = -1
+                        conn_tokens_end = -1
 
-            if curr_conn_start > 0:
-                conn_tokens_start = -1
-                conn_tokens_end = -1
+                        for tkn_id, char_offset in enumerate(sent_parse["char_offsets"]):
+                            if conn_tokens_start == -1:
+                                if curr_conn_start >= char_offset[0] and curr_conn_start <= char_offset[1]:
+                                    conn_tokens_start = tkn_id
+                                    if curr_conn_end >= char_offset[0] and curr_conn_end <= char_offset[1]:
+                                        conn_tokens_end = tkn_id + 1
+                                        break
+                            elif conn_tokens_end == -1:
+                                if curr_conn_end >= char_offset[0] and curr_conn_end <= char_offset[1]:
+                                    conn_tokens_end = tkn_id + 1
+                                    break
 
-                for tkn_id, char_offset in enumerate(sent_parse["char_offsets"]):
-                    if conn_tokens_start == -1:
-                        if curr_conn_start >= char_offset[0] and curr_conn_start <= char_offset[1]:
-                            conn_tokens_start = tkn_id
-                            if curr_conn_end >= char_offset[0] and curr_conn_end <= char_offset[1]:
-                                conn_tokens_end = tkn_id + 1
-                                break
-                    elif conn_tokens_end == -1:
-                        if curr_conn_end >= char_offset[0] and curr_conn_end <= char_offset[1]:
-                            conn_tokens_end = tkn_id + 1
-                            break
-
-                cand_id += 1
-                new_candidate_explicit = create_explicit(sent_id, sent, sent_parse,
-                                                         [conn_tokens_start, conn_tokens_end], doc_id_key, cand_id)
-                candidates_list.append(new_candidate_explicit)
+                        cand_id += 1
+                        new_candidate_explicit = create_explicit(doc_data, sent_id,
+                                                                 [conn_tokens_start, conn_tokens_end], cand_id)
+                        candidates_list.append(new_candidate_explicit)
 
             # explicit connectives
             if sent_id > 0:
