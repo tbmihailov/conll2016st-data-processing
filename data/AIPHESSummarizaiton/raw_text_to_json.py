@@ -87,6 +87,11 @@ if __name__ == "__main__":
     # # coreNlpPath="/home/mitarb/mihaylov/research/TAC2016/tac2016-kbp-event-nuggets/corenlp/stanford-corenlp-full-2015-12-09/*;"
 
     coreNlpPath = "/Users/mihaylov/research/libs/corenlp_executables/stanford-corenlp-full-2015-12-09/*"
+    if len(sys.argv) > 3:
+        coreNlpPath = sys.argv[3]
+
+    print "coreNlpPath:%s" % coreNlpPath
+
     parse_mode = "pos"  # "pos", "parse"
     parser = CoreNLP(parse_mode, corenlp_jars=coreNlpPath.split(';'))
 
