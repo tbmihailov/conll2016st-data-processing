@@ -22,7 +22,7 @@ ${output_base_dir}/hMDS_M
 ${output_base_dir}/hMDS_V
 )
 
-coreNlpPath="/home/mitarb/mihaylov/research/TAC2016/tac2016-kbp-event-nuggets/corenlp/stanford-corenlp-full-2015-12-09/*;"
+coreNlpPath="/home/mitarb/mihaylov/research/libs/corenlp/stanford-corenlp-full-2015-12-09/*;"
 
 files_cnt=1
 for ((i=0;i<files_cnt;i++)); do
