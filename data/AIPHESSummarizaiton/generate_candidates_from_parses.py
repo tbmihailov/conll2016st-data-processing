@@ -32,10 +32,10 @@ def create_explicit(sent_id, sent_text, sent_parse, conn_token_span, doc_id, new
     new_item["ID"] = new_id
 
     new_item["Arg1"]["TokenList"] = [[0, 0, sent_id,x] for x in range(0, conn_token_span[0])]
-    new_item["Arg1"]["RawText"] = sent_text[0:sent_parse["char_offsets"][conn_token_span[0]][1]]
+    new_item["Arg1"]["RawText"] = sent_text[0:sent_parse["char_offsets"][conn_token_span[0] - 1][1]]
 
     new_item["Connective"]["TokenList"] = [[0, 0, sent_id, x] for x in range(conn_token_span[0], conn_token_span[1])]
-    new_item["Connective"]["RawText"] = sent_text[sent_parse["char_offsets"][conn_token_span[0]][0]:sent_parse["char_offsets"][conn_token_span[1]][1]]
+    new_item["Connective"]["RawText"] = sent_text[sent_parse["char_offsets"][conn_token_span[0]][0]:sent_parse["char_offsets"][conn_token_span[1] - 1][1]]
 
     new_item["Arg2"]["TokenList"] = [[0, 0, sent_id, x] for x in range(conn_token_span[1], len(sent_parse["char_offsets"]))]
     new_item["Arg2"]["RawText"] = sent_text[sent_parse["char_offsets"][conn_token_span[1]][1]:]
@@ -49,18 +49,16 @@ def create_implicit(doc_data, sent1_id, sent2_id, cand_id):
     new_item["DocID"] = doc_data["ID"]
     new_item["ID"] = cand_id
 
-    new_item["Arg1"]["TokenList"] = [[0, 0, sent_id, x] for x in range(0, len(doc_data["sentences"][sent1_id]["tokens"]))]
+    new_item["Arg1"]["TokenList"] = [[0, 0, sent1_id, x] for x in range(0, len(doc_data["sentences"][sent1_id]["tokens"]))]
     new_item["Arg1"]["RawText"] = doc_data["sentences_text"][sent1_id]
 
-    new_item["Arg2"]["TokenList"] = [[0, 0, sent_id, x] for x in range(0, len(doc_data["sentences"][sent2_id]["tokens"]))]
+    new_item["Arg2"]["TokenList"] = [[0, 0, sent2_id, x] for x in range(0, len(doc_data["sentences"][sent2_id]["tokens"]))]
     new_item["Arg2"]["RawText"] = doc_data["sentences_text"][sent2_id]
 
     return new_item
 
-if __name__ == "__main__":
-    parse_file = sys.argv[1]
-    candidates_file_out = sys.argv[2]
 
+def export_discourse_relations_candidates_to_file(parse_file, candidates_file_out):
     f = codecs.open(parse_file, "rb")
     parses_json = json.load(f)
 
@@ -69,9 +67,6 @@ if __name__ == "__main__":
     candidates_list = []
     cand_id = 0
     for doc_id_key, doc_data in parses_json.iteritems():
-        doc_id_int = doc_data["ID"]
-        doc_start_line = doc_data["line_start"]
-
         for sent_id, sent in enumerate(doc_data["sentences_text"]):
             sent_parse = doc_data["sentences"][sent_id]
 
@@ -80,11 +75,19 @@ if __name__ == "__main__":
             curr_conn_end = -1
             for connective in connectives_to_check:
                 if connective in sent:
-
                     curr_conn_start = sent.find(connective)  # sent.indexof(connective)
-                    curr_conn_end = len(connective)
-                    break
+                    curr_conn_end = curr_conn_start + len(connective)
 
+                    # print "%s" % (sent[curr_conn_start - 1:curr_conn_end+1].replace(" ", "_"))
+                    if (curr_conn_end >= len(sent) or sent[curr_conn_end] not in [" ", ",", "-"]) \
+                            or curr_conn_start - 1 < 0 or sent[curr_conn_start - 1] not in [" ", ",", "-"]:
+                        # eliminate matches that are contained in a word
+                        curr_conn_start = -1
+                        curr_conn_end = -1
+                        # print "skip"
+                        continue
+
+                    break
 
             if curr_conn_start > 0:
                 conn_tokens_start = -1
@@ -103,7 +106,8 @@ if __name__ == "__main__":
                             break
 
                 cand_id += 1
-                new_candidate_explicit = create_explicit(sent_id, sent, sent_parse, [conn_tokens_start, conn_tokens_end], doc_id_key, cand_id)
+                new_candidate_explicit = create_explicit(sent_id, sent, sent_parse,
+                                                         [conn_tokens_start, conn_tokens_end], doc_id_key, cand_id)
                 candidates_list.append(new_candidate_explicit)
 
             # explicit connectives
@@ -117,8 +121,16 @@ if __name__ == "__main__":
     for candidate in candidates_list:
         file.write(json.dumps(candidate))
         file.write("\n")
-
     print ("Exported %s candidates to %s" % (len(candidates_list), candidates_file_out))
+
+
+if __name__ == "__main__":
+    parse_file = sys.argv[1]
+    candidates_file_out = sys.argv[2]
+
+    export_discourse_relations_candidates_to_file(parse_file, candidates_file_out)
+
+
 
 
 
