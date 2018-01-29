@@ -24,7 +24,7 @@ ${output_base_dir}/hMDS_V
 
 coreNlpPath="/home/mitarb/mihaylov/research/libs/corenlp/stanford-corenlp-full-2015-12-09/*;"
 
-files_cnt=1
+files_cnt=7
 for ((i=0;i<files_cnt;i++)); do
     echo "---------------"
     input_dir=${input_dirs[${i}]}
@@ -33,7 +33,15 @@ for ((i=0;i<files_cnt;i++)); do
     echo "input_dir: ${input_dir}"
     echo "output_dir: ${output_dir}"
 
-    python raw_text_to_json_run.py ${input_dir} ${output_dir} ${coreNlpPath}
+    script_name=raw_text_to_json_run.py
+    run_name=raw_text_to_json_run_${i}
+    log_file=${input_dir}_convert_$(date +%y-%m-%d-%H-%M-%S).log
+    . ~/tools/notify/script_started.sh
+
+    echo " python raw_text_to_json_run.py ${input_dir} ${output_dir} ${coreNlpPath}"
+    python raw_text_to_json_run.py ${input_dir} ${output_dir} ${coreNlpPath}  | tee -a ${log_file}
+
+    . ~/tools/notify/script_stopped.sh
 
     echo "---------------"
 done
