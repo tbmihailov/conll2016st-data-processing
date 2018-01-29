@@ -33,7 +33,7 @@ for ((i=0;i<files_cnt;i++)); do
     echo "input_dir: ${input_dir}"
     echo "output_dir: ${output_dir}"
 
-    python data/AIPHESSummarizaiton/raw_text_to_json.py ${input_dir} ${output_dir} ${coreNlpPath}
+    python raw_text_to_json_run.py ${input_dir} ${output_dir} ${coreNlpPath}
 
     echo "---------------"
 done
