@@ -124,11 +124,11 @@ def export_discourse_relations_candidates_to_file(parse_file, candidates_file_ou
     print ("Exported %s candidates to %s" % (len(candidates_list), candidates_file_out))
 
 
-if __name__ == "__main__":
-    parse_file = sys.argv[1]
-    candidates_file_out = sys.argv[2]
-
-    export_discourse_relations_candidates_to_file(parse_file, candidates_file_out)
+# if __name__ == "__main__":
+#     parse_file = sys.argv[1]
+#     candidates_file_out = sys.argv[2]
+#
+#     export_discourse_relations_candidates_to_file(parse_file, candidates_file_out)
 
 
 
