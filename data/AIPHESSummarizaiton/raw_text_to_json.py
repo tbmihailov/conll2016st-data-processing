@@ -8,7 +8,7 @@ import traceback
 
 from stanford_corenlp_pywrapper import CoreNLP
 
-from data.AIPHESSummarizaiton.generate_candidates_from_parses import export_discourse_relations_candidates_to_file
+from data.AIPHESSummarizaiton.generate_candidates_utils import export_discourse_relations_candidates_to_file
 from data.AIPHESSummarizaiton.raw_json_to_conll2016_json import convert_raw_json_to_conll2016_json
 
 
