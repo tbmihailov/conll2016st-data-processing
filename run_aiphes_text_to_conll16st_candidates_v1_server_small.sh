@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-input_base_dir=/home/mitarb/mihaylov/research/data/aiphes-summarization-collab/test/
+input_base_dir=/home/mitarb/mihaylov/research/data/aiphes-summarization-collab/test
 input_dirs=(
 ${input_base_dir}/DUC2003
 ${input_base_dir}/DUC2004
@@ -11,7 +11,7 @@ ${input_base_dir}/hMDS_M
 ${input_base_dir}/hMDS_V
 )
 
-output_base_dir=/home/mitarb/mihaylov/research/data/aiphes-summarization-collab/test_conll16st/
+output_base_dir=/home/mitarb/mihaylov/research/data/aiphes-summarization-collab/test_conll16st
 output_dirs=(
 ${output_base_dir}/DUC2003
 ${output_base_dir}/DUC2004
@@ -33,7 +33,7 @@ for ((i=0;i<files_cnt;i++)); do
     echo "input_dir: ${input_dir}"
     echo "output_dir: ${output_dir}"
 
-    python data/AIPHESSummarizaiton/raw_text_to_json.py ${input_dir} ${output_dir} ${corenlp_path}
+    python data/AIPHESSummarizaiton/raw_text_to_json.py ${input_dir} ${output_dir} ${coreNlpPath}
 
     echo "---------------"
 done
