@@ -126,7 +126,7 @@ if __name__ == "__main__":
     print "Exporting vocabulary: %s" % out_file_vocab
     f_exp_vocab = open(out_file_vocab, "w")
     for feat in feats_sorted:
-        f_exp_vocab.write("%s\t%s" % (feat[0], feat[1]))
+        f_exp_vocab.write("%s\t%s\n" % (feat[0], feat[1]))
     f_exp_vocab.close()
 
     # by frequency
