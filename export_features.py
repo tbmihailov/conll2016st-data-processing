@@ -121,7 +121,7 @@ if __name__ == "__main__":
                 f_exp.write(exp_delim_line)
 
     # Vocabulary export
-    feats_sorted = sorted([(feat_info["id"], feat_name, feat_info["cnt"]) for feat_name, feat_info in features.iteritems()], key=lambda a:a[0])
+    feats_sorted = sorted([(feat_info["id"], feat_name.encode('ascii', 'ignore'), feat_info["cnt"]) for feat_name, feat_info in features.iteritems()], key=lambda a:a[0])
     out_file_vocab = os.path.join(output_dir, "input.txt")
     print "Exporting vocabulary: %s" % out_file_vocab
     f_exp_vocab = open(out_file_vocab, "w")
