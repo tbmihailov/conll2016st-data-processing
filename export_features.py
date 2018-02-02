@@ -94,11 +94,11 @@ if __name__ == "__main__":
                 if sent_id_arg2 >= 0:
                     docs_with_sent_features[curr_doc_id]["sentences"][sent_id_arg2].append(get_feature_id(feat_dr_type+"_Arg2"))
 
-            if len(dr_instance_json["Connective"]["RawText"]) > 0:
-                docs_with_sent_features[curr_doc_id]["sentences"][sent_id_conn].append(
-                    get_feature_id("DR_Conn_"+dr_instance_json["Connective"]["RawText"].replace(" ", "_")))
-                docs_with_sent_features[curr_doc_id]["sentences"][sent_id_conn].append(get_feature_id(
-                    "DR_SenseConn_%s_%s_%s" % (dr_instance_json["Type"][:3], dr_instance_json["Sense"][0], dr_instance_json["Connective"]["RawText"].replace(" ", "_"))))
+            # if len(dr_instance_json["Connective"]["RawText"]) > 0:
+            #     docs_with_sent_features[curr_doc_id]["sentences"][sent_id_conn].append(
+            #         get_feature_id("DR_Conn_"+dr_instance_json["Connective"]["RawText"].replace(" ", "_")))
+            #     docs_with_sent_features[curr_doc_id]["sentences"][sent_id_conn].append(get_feature_id(
+            #         "DR_SenseConn_%s_%s_%s" % (dr_instance_json["Type"][:3], dr_instance_json["Sense"][0], dr_instance_json["Connective"]["RawText"].replace(" ", "_"))))
 
         # export file features
         exp_delim_feat = " "
