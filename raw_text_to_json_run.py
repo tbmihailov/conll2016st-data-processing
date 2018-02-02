@@ -213,7 +213,7 @@ if __name__ == "__main__":
     # read the files
     from os import listdir
     from os.path import isfile, join
-    input_files_in_dir = [f for f in listdir(input_dir) if isfile(join(input_dir, f)) and f.endswith(".txt")]
+    input_files_in_dir = [f for f in listdir(input_dir) if isfile(join(input_dir, f)) and (f.endswith(".txt") or f.endswith(".sent"))]
 
     # CoreNLP
     # coreNlpPath="/home/mihaylov/research/TAC2016/tac2016-kbp-event-nuggets/corenlp/stanford-corenlp-full-2015-12-09/*;/home/mihaylov/research/TAC2016/tac2016-kbp-event-nuggets/corenlp/stanford-srparser-2014-10-23-models.jar"
