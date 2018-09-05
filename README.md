@@ -1,7 +1,7 @@
 # conll2016st-data-processing
 Data processing library to convert raw data to data format for Conll 2016 Shared Task on Shallow Discourse Parsing
 
-The code is used for data preparation for the paper:
+The code is used for data preparation for the paper: What's important in a text? An extensive evaluation of linguistic annotations for summarization
 
 ```bib
 @inproceedings{
